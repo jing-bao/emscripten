@@ -15,7 +15,7 @@ void TESTFN i8x16_store(i8x16 *ptr, i8x16 vec) {
 //  *ptr = vec;
 }
 i32x4 TESTFN i32x4_const(void) {
-  return (i32x4) = wasm_v128_const(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
+  return (i32x4)(wasm_v128_const(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15));
 //  return (i32x4) {1, 2, 3, 4};
 }
 //todo:
@@ -190,7 +190,7 @@ i8x16 TESTFN i8x16_gt_s(i8x16 x, i8x16 y) {
   return wasm_i8x16_gt(x, y);
 //  return x > y;
 }
-i8x16 TESTFN u8x16_gt_u(i8x16 x, i8x16 y) {
+i8x16 TESTFN i8x16_gt_u(i8x16 x, i8x16 y) {
   return wasm_u8x16_gt(x,y);
 //  return (u8x16)x > (u8x16)y;
 }
@@ -314,10 +314,13 @@ i32x4 TESTFN f32x4_ge(f32x4 x, f32x4 y) {
   return wasm_f32x4_ge(x, y);
 //  return (i32x4)(x >= y);
 }
+
+#ifdef __wasm_undefined_simd128__
 i64x2 TESTFN f64x2_eq(f64x2 x, f64x2 y) {
   return wasm_f64x2_eq(x,y);
 //  return (i64x2)(x == y);
 }
+#endif // __wasm_unimplemented_simd128__
 i64x2 TESTFN f64x2_ne(f64x2 x, f64x2 y) {
   return wasm_f64x2_ne(x,y);
 //  return (i64x2)(x != y);
@@ -338,6 +341,7 @@ i64x2 TESTFN f64x2_ge(f64x2 x, f64x2 y) {
   return wasm_f64x2_ge(x, y);
 //  return (i64x2)(x >= y);
 }
+
 i8x16 TESTFN i8x16_not(i8x16 vec) {
   return wasm_i8x16_not(vec);
 //  return ~vec;
@@ -564,7 +568,7 @@ f32x4 TESTFN f32x4_div(f32x4 x, f32x4 y) {
 //  return x / y;
 }
 f32x4 TESTFN f32x4_min(f32x4 x, f32x4 y) {
-  return wasm_f32x4_min(f32x4)
+  return wasm_f32x4_min(x, y);
 //  return __builtin_wasm_min_f32x4(x, y);
 }
 f32x4 TESTFN f32x4_max(f32x4 x, f32x4 y) {
@@ -634,11 +638,14 @@ f64x2 TESTFN f64x2_convert_u_i64x2(i64x2 vec) {
 static int failures = 0;
 
 #define formatter(x) _Generic((x),                      \
-                              char: "%d",               \
+                              signed char: "%d",               \
                               unsigned char: "%d",      \
                               short: "%d",              \
+                              unsigned short: "%d",              \
                               int64_t: "%ld",           \
+                              uint64_t: "%ld",           \
                               int32_t: "%d",            \
+                              bool: "%d",            \
                               uint32_t: "%d",           \
                               float: "%f",              \
                               double: "%f"              \
@@ -677,8 +684,11 @@ static int failures = 0;
                               u8x16: 16,                        \
                               i8x16: 16,                        \
                               i16x8: 8,                         \
+                              u16x8: 8,                         \
                               i32x4: 4,                         \
+                              u32x4: 4,                         \
                               i64x2: 2,                         \
+                              u64x2: 2,                         \
                               f32x4: 4,                         \
                               f64x2: 2);                        \
       for (size_t i = 0; i < lanes; i++) {                      \
@@ -1032,13 +1042,15 @@ int EMSCRIPTEN_KEEPALIVE main(int argc, char** argv) {
   );
 
   // f64x2 comparisons
+#ifdef __wasm_unimplemented_simd128__
   expect_vec(f64x2_eq((f64x2){0, 1}, (f64x2){0, 0}), ((i64x2){-1, 0}));
+  expect_vec(f64x2_eq((f64x2){NAN, 0}, (f64x2){INFINITY, INFINITY}), ((i64x2){0, 0}));
+#endif // __wasm_unimplemented_simd128__
   expect_vec(f64x2_ne((f64x2){0, 1}, (f64x2){0, 0}), ((i64x2){0, -1}));
   expect_vec(f64x2_lt((f64x2){0, 1}, (f64x2){0, 0}), ((i64x2){0, 0}));
   expect_vec(f64x2_gt((f64x2){0, 1}, (f64x2){0, 0}), ((i64x2){0, -1}));
   expect_vec(f64x2_le((f64x2){0, 1}, (f64x2){0, 0}), ((i64x2){-1, 0}));
   expect_vec(f64x2_ge((f64x2){0, 1}, (f64x2){0, 0}), ((i64x2){-1, -1}));
-  expect_vec(f64x2_eq((f64x2){NAN, 0}, (f64x2){INFINITY, INFINITY}), ((i64x2){0, 0}));
   expect_vec(f64x2_ne((f64x2){NAN, 0}, (f64x2){INFINITY, INFINITY}), ((i64x2){-1, -1}));
   expect_vec(f64x2_lt((f64x2){NAN, 0}, (f64x2){INFINITY, INFINITY}), ((i64x2){0, -1}));
   expect_vec(f64x2_gt((f64x2){NAN, 0}, (f64x2){INFINITY, INFINITY}), ((i64x2){0, 0}));

@@ -200,6 +200,10 @@ static __inline__ i64x2 __DEFAULT_FN_ATTRS wasm_i64x2_mul(i64x2 a, i64x2 b) {
 static __inline__ f32x4 __DEFAULT_FN_ATTRS wasm_f32x4_mul(f32x4 a, f32x4 b) {
   return __extension__(f32x4){a * b};
 }
+// f32x4 wasm_f32x4_div(f32x4 a f32x4 b)
+static __inline__ f32x4 __DEFAULT_FN_ATTRS wasm_f32x4_div(f32x4 a, f32x4 b) {
+  return __extension__(f32x4){a / b};
+}
 
 // i8x16 wasm_i8x16_neg(i8x16 a)
 static __inline__ i8x16 __DEFAULT_FN_ATTRS wasm_i8x16_neg(i8x16 a) {
@@ -387,12 +391,12 @@ static __inline__ i32x4 __DEFAULT_FN_ATTRS wasm_i32x4_eq(i32x4 a, i32x4 b) {
   return __extension__(i32x4){a == b};
 }
 
-#ifdef __wasm_undefined_simd128__
+//#ifdef __wasm_undefined_simd128__
 // i32x4 wasm_f32x4_eq(f32x4 a f32x4 b)
 static __inline__ i32x4 __DEFAULT_FN_ATTRS wasm_f32x4_eq(f32x4 a, f32x4 b) {
-  return __extension__(f32x4){a == b};
+  return __extension__(i32x4){a == b};
 }
-#endif
+//#endif
 
 #ifdef __wasm_undefined_simd128__
 // i64x2 wasm_f64x2_eq(f64x2 a, f64x2 b)
@@ -452,7 +456,7 @@ static __inline__ i32x4 wasm_i32x4_lt(i32x4 a, i32x4 b) {
 }
 
 // i32x4 wasm_u32x4_lt(u32x4 a, u32x4 b)
-static __inline__ i32x4 wasm_i32x4_lt(u32x4 a, u32x4 b) {
+static __inline__ i32x4 wasm_u32x4_lt(u32x4 a, u32x4 b) {
   return __extension__(u32x4){a < b};
 }
 
@@ -492,7 +496,7 @@ static __inline__ i32x4 wasm_i32x4_le(i32x4 a, i32x4 b) {
 }
 
 // i32x4 wasm_u32x4_le(u32x4 a, u32x4 b)
-static __inline__ i32x4 wasm_i32x4_le(u32x4 a, u32x4 b) {
+static __inline__ i32x4 wasm_u32x4_le(u32x4 a, u32x4 b) {
   return __extension__(u32x4){a <= b};
 }
 

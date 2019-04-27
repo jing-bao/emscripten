@@ -51,7 +51,6 @@ def wasm_simd(f):
     if not V8_ENGINE or V8_ENGINE not in JS_ENGINES:
       self.skipTest('wasm simd only supported in d8 for now')
     self.set_setting('SIMD', 1)
-    self.emcc_args.append('-fno-lax-vector-conversions')
     f(self, js_engines=[V8_ENGINE + ['--experimental-wasm-simd']])
   return decorated
 
